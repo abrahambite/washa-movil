@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Seguimiento del Pedido</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h2>🕒 Estado de tu pedido</h2>
+    <p><strong>Servicio:</strong> <span id="servicio"></span></p>
+    <p><strong>Dirección:</strong> <span id="direccion"></span></p>
+    <p><strong>Estado:</strong> <span id="estado"></span></p>
+    <p id="mensajeEstado"></p>
+  </div>
+
+  <script>
+    async function cargarPedido() {
+      const params = new URLSearchParams(window.location.search);
+      const id = params.get("id");
+
+      const res = await fetch(`/api/pedidos/${id}`);
+      if (!res.ok) {
+        document.body.innerHTML = "<h2>Pedido no encontrado</h2>";
+        return;
+      }
+
+      const pedido = await res.json();
+      document.getElementById("servicio").textContent = pedido.servicio;
+      document.getElementById("direccion").textContent = pedido.direccion;
+      document.getElementById("estado").textContent = pedido.estado;
+
+      let mensaje = "";
+      if (pedido.estado === "pendiente") mensaje = "Tu pedido ha sido recibido, pronto será asignado.";
+      if (pedido.estado === "en camino") mensaje = "El lavador ya va en camino a tu domicilio.";
+      if (pedido.estado === "en proceso") mensaje = "Tu auto está siendo lavado.";
+      if (pedido.estado === "finalizado") mensaje = "Tu lavado ha sido completado. ¡Gracias por confiar en nosotros!";
+      document.getElementById("mensajeEstado").textContent = mensaje;
+    }
+
+    cargarPedido();
+    setInterval(cargarPedido, 10000); // actualiza cada 10 segundos
+  </script>
+</body>
+</html>
