@@ -10,6 +10,8 @@ document.addEventListener('DOMContentLoaded', () => {
       direccion: form.direccion.value,
       servicio: form.servicio.value,
       pago: form.pago.value,
+      lat: localStorage.getItem("lat"),
+      lng: localStorage.getItem("lng"),
       estado: "pendiente",
       fecha: new Date().toISOString()
     };
@@ -22,10 +24,10 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       const result = await res.json();
-      // Redirige al cliente a su pantalla de seguimiento
-      window.location.href = `/public/seguimiento.html?id=${result.id}`;
+      // Redirige al seguimiento
+      window.location.href = `/seguimiento.html?id=${result.id}`;
     } catch (err) {
-      alert('Error al enviar pedido');
+      alert('Error al enviar el pedido');
       console.error(err);
     }
   });
