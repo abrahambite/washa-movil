@@ -1,97 +1,65 @@
-:root {
-  --main-color: #007bff;
-  --background: #f9f9f9;
-  --text-color: #333;
-  --radius: 12px;
+const express = require('express');
+const cors = require('cors');
+const fs = require('fs');
+const path = require('path');
+const bodyParser = require('body-parser');
+const { v4: uuidv4 } = require('uuid');
+
+const app = express();
+app.use(cors());
+app.use(bodyParser.json());
+
+// Servir archivos estáticos desde la raíz
+app.use(express.static(path.join(__dirname)));
+
+// Redirigir "/" a index.html
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+// Rutas de pedidos
+const pedidosPath = './data/pedidos.json';
+
+function loadPedidos() {
+  if (!fs.existsSync(pedidosPath)) return [];
+  return JSON.parse(fs.readFileSync(pedidosPath));
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+function savePedidos(pedidos) {
+  fs.writeFileSync(pedidosPath, JSON.stringify(pedidos, null, 2));
 }
 
-body {
-  font-family: 'Segoe UI', sans-serif;
-  background: var(--background);
-  color: var(--text-color);
-  line-height: 1.6;
-  padding: 20px;
-}
+app.post('/api/pedidos', (req, res) => {
+  const pedidos = loadPedidos();
+  const pedido = { id: uuidv4(), ...req.body };
+  pedidos.push(pedido);
+  savePedidos(pedidos);
+  res.json({ id: pedido.id });
+});
 
-.container {
-  max-width: 500px;
-  margin: auto;
-  background: white;
-  padding: 30px;
-  border-radius: var(--radius);
-  box-shadow: 0 0 12px rgba(0,0,0,0.1);
-}
+app.get('/api/pedidos', (req, res) => {
+  const pedidos = loadPedidos();
+  res.json(pedidos);
+});
 
-h1, h2 {
-  text-align: center;
-  margin-bottom: 20px;
-  color: var(--main-color);
-}
+app.get('/api/pedidos/:id', (req, res) => {
+  const pedidos = loadPedidos();
+  const pedido = pedidos.find(p => p.id === req.params.id);
+  if (pedido) res.json(pedido);
+  else res.status(404).json({ error: 'Pedido no encontrado' });
+});
 
-form label {
-  display: block;
-  margin-top: 15px;
-  font-weight: 600;
-}
-
-input[type="text"],
-input[type="tel"],
-select {
-  width: 100%;
-  padding: 10px;
-  margin-top: 5px;
-  border: 1px solid #ccc;
-  border-radius: var(--radius);
-  font-size: 16px;
-}
-
-button {
-  width: 100%;
-  padding: 12px;
-  margin-top: 25px;
-  background: var(--main-color);
-  color: white;
-  border: none;
-  border-radius: var(--radius);
-  font-size: 18px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
-
-button:hover {
-  background: #0056b3;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
-}
-
-table th, table td {
-  padding: 12px;
-  text-align: left;
-  border-bottom: 1px solid #ddd;
-}
-
-table th {
-  background: #007bff;
-  color: white;
-}
-
-@media (max-width: 600px) {
-  .container {
-    padding: 15px;
+app.put('/api/pedidos/:id', (req, res) => {
+  const pedidos = loadPedidos();
+  const index = pedidos.findIndex(p => p.id === req.params.id);
+  if (index !== -1) {
+    pedidos[index] = { ...pedidos[index], ...req.body };
+    savePedidos(pedidos);
+    res.json(pedidos[index]);
+  } else {
+    res.status(404).json({ error: 'Pedido no encontrado' });
   }
+});
 
-  button {
-    font-size: 16px;
-  }
-}
+const PORT = process.env.PORT || 8080;
+app.listen(PORT, () => console.log(`Servidor corriendo en puerto ${PORT}`));
