@@ -1,65 +1,79 @@
-const express = require('express');
-const cors = require('cors');
-const fs = require('fs');
-const path = require('path');
-const bodyParser = require('body-parser');
-const { v4: uuidv4 } = require('uuid');
-
-const app = express();
-app.use(cors());
-app.use(bodyParser.json());
-
-// Servir archivos estáticos desde la raíz
-app.use(express.static(path.join(__dirname)));
-
-// Redirigir "/" a index.html
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
-});
-
-// Rutas de pedidos
-const pedidosPath = './data/pedidos.json';
-
-function loadPedidos() {
-  if (!fs.existsSync(pedidosPath)) return [];
-  return JSON.parse(fs.readFileSync(pedidosPath));
+:root {
+  --primary: #007bff;
+  --light-bg: #f0f2f5;
+  --card-bg: #ffffff;
+  --text: #333;
+  --radius: 12px;
+  --shadow: 0 2px 12px rgba(0,0,0,0.1);
 }
 
-function savePedidos(pedidos) {
-  fs.writeFileSync(pedidosPath, JSON.stringify(pedidos, null, 2));
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-app.post('/api/pedidos', (req, res) => {
-  const pedidos = loadPedidos();
-  const pedido = { id: uuidv4(), ...req.body };
-  pedidos.push(pedido);
-  savePedidos(pedidos);
-  res.json({ id: pedido.id });
-});
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: var(--light-bg);
+  color: var(--text);
+  display: flex;
+  justify-content: center;
+  padding: 40px 10px;
+}
 
-app.get('/api/pedidos', (req, res) => {
-  const pedidos = loadPedidos();
-  res.json(pedidos);
-});
+.container {
+  background: var(--card-bg);
+  padding: 30px;
+  width: 100%;
+  max-width: 500px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
 
-app.get('/api/pedidos/:id', (req, res) => {
-  const pedidos = loadPedidos();
-  const pedido = pedidos.find(p => p.id === req.params.id);
-  if (pedido) res.json(pedido);
-  else res.status(404).json({ error: 'Pedido no encontrado' });
-});
+h1 {
+  text-align: center;
+  color: var(--primary);
+  font-size: 28px;
+  margin-bottom: 25px;
+}
 
-app.put('/api/pedidos/:id', (req, res) => {
-  const pedidos = loadPedidos();
-  const index = pedidos.findIndex(p => p.id === req.params.id);
-  if (index !== -1) {
-    pedidos[index] = { ...pedidos[index], ...req.body };
-    savePedidos(pedidos);
-    res.json(pedidos[index]);
-  } else {
-    res.status(404).json({ error: 'Pedido no encontrado' });
+label {
+  margin: 15px 0 5px;
+  display: block;
+  font-weight: 600;
+}
+
+input,
+select {
+  width: 100%;
+  padding: 12px;
+  border-radius: var(--radius);
+  border: 1px solid #ccc;
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+button {
+  width: 100%;
+  padding: 14px;
+  background: var(--primary);
+  color: white;
+  font-weight: bold;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  margin-top: 10px;
+}
+
+button:hover {
+  background: #0056b3;
+}
+
+@media (max-width: 600px) {
+  .container {
+    padding: 20px;
   }
-});
-
-const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => console.log(`Servidor corriendo en puerto ${PORT}`));
+}
