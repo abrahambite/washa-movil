@@ -1,28 +1,34 @@
 const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
+const path = require('path');
 const bodyParser = require('body-parser');
 const { v4: uuidv4 } = require('uuid');
 
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
-app.use(express.static('public'));
+
+// Servir archivos estáticos desde la carpeta raíz
+app.use(express.static(path.join(__dirname)));
+
+// Ruta raíz: redirige a index.html
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
 
 const pedidosPath = './data/pedidos.json';
 
-// Cargar pedidos existentes
 function loadPedidos() {
   if (!fs.existsSync(pedidosPath)) return [];
   return JSON.parse(fs.readFileSync(pedidosPath));
 }
 
-// Guardar pedidos
 function savePedidos(pedidos) {
   fs.writeFileSync(pedidosPath, JSON.stringify(pedidos, null, 2));
 }
 
-// POST: crear pedido
+// API endpoints
 app.post('/api/pedidos', (req, res) => {
   const pedidos = loadPedidos();
   const pedido = { id: uuidv4(), ...req.body };
@@ -31,13 +37,10 @@ app.post('/api/pedidos', (req, res) => {
   res.json({ id: pedido.id });
 });
 
-// GET: obtener todos los pedidos
 app.get('/api/pedidos', (req, res) => {
-  const pedidos = loadPedidos();
-  res.json(pedidos);
+  res.json(loadPedidos());
 });
 
-// GET: obtener un pedido por ID
 app.get('/api/pedidos/:id', (req, res) => {
   const pedidos = loadPedidos();
   const pedido = pedidos.find(p => p.id === req.params.id);
@@ -45,7 +48,6 @@ app.get('/api/pedidos/:id', (req, res) => {
   else res.status(404).json({ error: 'Pedido no encontrado' });
 });
 
-// PUT: actualizar estado
 app.put('/api/pedidos/:id', (req, res) => {
   const pedidos = loadPedidos();
   const index = pedidos.findIndex(p => p.id === req.params.id);
@@ -58,5 +60,7 @@ app.put('/api/pedidos/:id', (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Servidor corriendo en puerto ${PORT}`));
+const PORT = process.env.PORT || 8080;
+app.listen(PORT, () => {
+  console.log(`Servidor corriendo en puerto ${PORT}`);
+});
