@@ -6,9 +6,12 @@
   <title>WASH'A MÓVIL</title>
   <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body onload="initAutocomplete()">
   <div class="container">
-    <h1>🚗 WASH'A MÓVIL</h1>
+    <div style="text-align: center; margin-bottom: 20px;">
+      <img src="logo.png" alt="Logo" style="max-width: 120px; border-radius: 12px;">
+    </div>
+    <h1>WASH'A MÓVIL</h1>
 
     <form id="pedidoForm">
       <label>Nombre:</label>
@@ -18,7 +21,7 @@
       <input type="tel" name="telefono" required />
 
       <label>Dirección (usa Google Maps):</label>
-      <input type="text" id="direccion" name="direccion" required />
+      <input type="text" id="direccion" name="direccion" required autocomplete="off"/>
 
       <label>Tipo de lavado:</label>
       <select name="servicio" required>
@@ -39,5 +42,27 @@
   </div>
 
   <script src="main.js"></script>
+
+  <!-- Google Maps API + Autocompletado -->
+  <script
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA5-NK4WbfDUTSyvRh2DiPoPk9nxcq1mnc&libraries=places"
+    async defer></script>
+
+  <script>
+    function initAutocomplete() {
+      const input = document.getElementById("direccion");
+      const autocomplete = new google.maps.places.Autocomplete(input);
+      autocomplete.addListener("place_changed", () => {
+        const place = autocomplete.getPlace();
+        if (!place.geometry) return;
+        const lat = place.geometry.location.lat();
+        const lng = place.geometry.location.lng();
+        localStorage.setItem("lat", lat);
+        localStorage.setItem("lng", lng);
+      });
+    }
+
+    window.initAutocomplete = initAutocomplete;
+  </script>
 </body>
 </html>
