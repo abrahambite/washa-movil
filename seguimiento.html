@@ -13,6 +13,7 @@
     <p><strong>Dirección:</strong> <span id="direccion"></span></p>
     <p><strong>Estado:</strong> <span id="estado"></span></p>
     <p id="mensajeEstado"></p>
+    <div id="mapaLink" style="margin-top: 20px;"></div>
   </div>
 
   <script>
@@ -32,15 +33,24 @@
       document.getElementById("estado").textContent = pedido.estado;
 
       let mensaje = "";
-      if (pedido.estado === "pendiente") mensaje = "Tu pedido ha sido recibido, pronto será asignado.";
-      if (pedido.estado === "en camino") mensaje = "El lavador ya va en camino a tu domicilio.";
-      if (pedido.estado === "en proceso") mensaje = "Tu auto está siendo lavado.";
-      if (pedido.estado === "finalizado") mensaje = "Tu lavado ha sido completado. ¡Gracias por confiar en nosotros!";
+      if (pedido.estado === "pendiente") mensaje = "Tu pedido ha sido recibido. Pronto será asignado.";
+      if (pedido.estado === "en camino") mensaje = "🚗 El lavador ya va en camino a tu domicilio.";
+      if (pedido.estado === "en proceso") mensaje = "🧼 Tu auto está siendo lavado.";
+      if (pedido.estado === "finalizado") mensaje = "✅ ¡Lavado completado! Gracias por confiar en nosotros.";
+
       document.getElementById("mensajeEstado").textContent = mensaje;
+
+      if (pedido.lat && pedido.lng) {
+        document.getElementById("mapaLink").innerHTML = `
+          <a href="https://www.google.com/maps/search/?api=1&query=${pedido.lat},${pedido.lng}" 
+             target="_blank" style="color:#007bff; font-weight:bold; display:block; text-align:center;">
+            📍 Ver ubicación en Google Maps
+          </a>`;
+      }
     }
 
     cargarPedido();
-    setInterval(cargarPedido, 10000); // actualiza cada 10 segundos
+    setInterval(cargarPedido, 10000); // actualiza cada 10 seg
   </script>
 </body>
 </html>
