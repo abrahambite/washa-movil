@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>WASH'A MÓVIL</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>🚗 WASH'A MÓVIL</h1>
+
+    <form id="pedidoForm">
+      <label>Nombre:</label>
+      <input type="text" name="nombre" required />
+
+      <label>Teléfono:</label>
+      <input type="tel" name="telefono" required />
+
+      <label>Dirección (usa Google Maps):</label>
+      <input type="text" id="direccion" name="direccion" required />
+
+      <label>Tipo de lavado:</label>
+      <select name="servicio" required>
+        <option value="Lavado Básico">Lavado Básico - $150</option>
+        <option value="Con Cera">Con Cera - $250</option>
+        <option value="Premium">Premium - $350</option>
+      </select>
+
+      <label>Método de pago:</label>
+      <select name="pago" required>
+        <option value="Efectivo">Efectivo</option>
+        <option value="Transferencia">Transferencia</option>
+        <option value="Tarjeta">Tarjeta</option>
+      </select>
+
+      <button type="submit">Solicitar lavado</button>
+    </form>
+  </div>
+
+  <script src="main.js"></script>
+</body>
+</html>
