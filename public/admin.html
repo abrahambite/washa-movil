@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin - WASH'A MÓVIL</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h2>🧼 Panel de Pedidos</h2>
+    <table border="1" width="100%" id="tablaPedidos">
+      <thead>
+        <tr>
+          <th>Cliente</th>
+          <th>Servicio</th>
+          <th>Dirección</th>
+          <th>Teléfono</th>
+          <th>Pago</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <script>
+    async function cargarPedidos() {
+      const res = await fetch('/api/pedidos');
+      const pedidos = await res.json();
+
+      const tbody = document.querySelector('#tablaPedidos tbody');
+      tbody.innerHTML = "";
+
+      pedidos.forEach(p => {
+        const tr = document.createElement("tr");
+
+        tr.innerHTML = `
+          <td>${p.nombre}</td>
+          <td>${p.servicio}</td>
+          <td>${p.direccion}</td>
+          <td>${p.telefono}</td>
+          <td>${p.pago}</td>
+          <td>${p.estado}</td>
+          <td>
+            <button onclick="cambiarEstado('${p.id}', 'en camino')">En camino</button>
+            <button onclick="cambiarEstado('${p.id}', 'en proceso')">En proceso</button>
+            <button onclick="cambiarEstado('${p.id}', 'finalizado')">Finalizado</button>
+            <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.direccion)}" target="_blank">📍 Mapa</a>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function cambiarEstado(id, nuevoEstado) {
+      await fetch(`/api/pedidos/${id}`, {
+        method: "PUT",
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ estado: nuevoEstado })
+      });
+      cargarPedidos();
+    }
+
+    cargarPedidos();
+    setInterval(cargarPedidos, 15000); // actualiza cada 15 segundos
+  </script>
+</body>
+</html>
